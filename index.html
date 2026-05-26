@@ -374,16 +374,26 @@
 
     // ───────── initData parse ─────────
     function parseInitData() {
-      // 봇이 미니앱 URL에 ?d=BASE64_JSON 으로 데이터 인코딩
+      // 봇이 미니앱 URL에 ?d=URLSAFE_BASE64_JSON (UTF-8 raw) 으로 인코딩
       const params = new URLSearchParams(window.location.search);
-      const d = params.get('d');
+      let d = params.get('d');
       if (d) {
         try {
-          const decoded = JSON.parse(atob(decodeURIComponent(d)));
+          // 1) urlsafe → standard base64 ('-' → '+', '_' → '/')
+          let std = d.replace(/-/g, '+').replace(/_/g, '/');
+          // 2) padding 복원 (urlsafe_b64encode().rstrip('=') 했으므로)
+          while (std.length % 4) std += '=';
+          // 3) atob → binary string → UTF-8 bytes → JSON
+          const binary = atob(std);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+          const jsonText = new TextDecoder('utf-8').decode(bytes);
+          const decoded = JSON.parse(jsonText);
           Object.assign(STATE, decoded);
           return true;
         } catch (e) {
           showError('데이터 파싱 실패: ' + e.message);
+          console.error('parse error:', e, 'raw d=', d?.substring(0, 100));
           return false;
         }
       }
