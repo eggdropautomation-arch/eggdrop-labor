@@ -73,6 +73,11 @@
     }
     .emp-row:last-child { border-bottom: none; }
     .emp-row.off { opacity: 0.5; }
+    .emp-row.incomplete {
+      background: rgba(255,59,48,0.06);
+      border-left: 3px solid var(--destructive);
+    }
+    .work-hours.warn { color: var(--destructive); font-weight: 700; }
 
     .emp-name-row {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -256,6 +261,146 @@
     }
     .grade-chip.selected { background: var(--btn); color: var(--btn-text); border-color: var(--btn); }
 
+    /* ───────── Crew 시급 입력 섹션 ───────── */
+    .rate-section {
+      margin: 12px 16px 4px;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      background: var(--section-bg);
+    }
+    .rate-title {
+      font-size: 12px; font-weight: 600;
+      color: var(--section-header); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .rate-row {
+      display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 8px;
+    }
+    .rate-chip {
+      padding: 12px 4px; border-radius: 10px;
+      background: var(--secondary-bg); color: var(--text);
+      font-size: 14px; font-weight: 600; text-align: center;
+      cursor: pointer; user-select: none; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid transparent;
+      font-variant-numeric: tabular-nums;
+    }
+    .rate-chip.selected { background: var(--btn); color: var(--btn-text); border-color: var(--btn); }
+    .rate-input {
+      padding: 12px 8px; border-radius: 10px;
+      background: var(--secondary-bg); border: 2px solid transparent;
+      color: var(--text); font-size: 14px; font-weight: 600;
+      min-height: 44px; text-align: center;
+      font-variant-numeric: tabular-nums; appearance: textfield;
+    }
+    .rate-input:focus { outline: none; border-color: var(--btn); background: var(--section-bg); }
+    .rate-input::-webkit-outer-spin-button,
+    .rate-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .rate-input.active { border-color: var(--btn); }
+
+    /* ───────── 직원 관리 modal ───────── */
+    .manage-list { margin: 0 0 16px; border-radius: 10px; overflow: hidden; background: var(--secondary-bg); }
+    .manage-row {
+      padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .manage-row:last-child { border-bottom: none; }
+    .manage-row.deleting { opacity: 0.4; text-decoration: line-through; }
+    .manage-name { font-size: 14px; font-weight: 500; }
+    .manage-del-btn {
+      padding: 6px 10px; border-radius: 8px;
+      background: rgba(255,59,48,0.12); color: var(--destructive);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      border: none;
+    }
+    .manage-undo-btn {
+      padding: 6px 10px; border-radius: 8px;
+      background: rgba(0,0,0,0.05); color: var(--text);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      border: none;
+    }
+
+    /* ───────── 지원 섹션 ───────── */
+    .support-row {
+      padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      flex-wrap: wrap;
+    }
+    .support-row:last-child { border-bottom: none; }
+    .support-row.dir-in    { background: rgba(52,199,89,0.06); }
+    .support-row.dir-out   { background: rgba(255,59,48,0.06); }
+    .support-tag {
+      padding: 4px 8px; border-radius: 6px;
+      font-size: 11px; font-weight: 700; color: white;
+    }
+    .support-tag.in    { background: var(--grade-am); }
+    .support-tag.out   { background: var(--destructive); }
+    .support-info { flex: 1; font-size: 13px; }
+    .support-info .name { font-weight: 600; }
+    .support-info .meta { color: var(--hint); font-size: 12px; }
+    .support-delete {
+      padding: 4px 8px; border-radius: 6px; background: rgba(0,0,0,0.08);
+      color: var(--text); font-size: 11px; font-weight: 600; border: none; cursor: pointer;
+    }
+
+    /* 지원 모달 */
+    .sup-dir-pick {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+    }
+    .sup-dir-chip {
+      padding: 12px; border-radius: 10px; background: var(--secondary-bg);
+      font-size: 14px; font-weight: 600; text-align: center; cursor: pointer;
+      min-height: 44px; display: flex; align-items: center; justify-content: center;
+      border: 2px solid transparent;
+    }
+    .sup-dir-chip.selected.in  { background: var(--grade-am); color: white; border-color: var(--grade-am); }
+    .sup-dir-chip.selected.out { background: var(--destructive); color: white; border-color: var(--destructive); }
+
+    .sup-scope-pick {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;
+    }
+    .sup-scope-chip {
+      padding: 12px; border-radius: 10px; background: var(--secondary-bg);
+      font-size: 14px; font-weight: 600; text-align: center; cursor: pointer; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid transparent;
+    }
+    .sup-scope-chip.selected { background: var(--btn); color: var(--btn-text); border-color: var(--btn); }
+
+    .sup-name-suggest {
+      max-height: 180px; overflow-y: auto;
+      background: var(--secondary-bg); border-radius: 10px; margin-top: 4px;
+    }
+    .sup-name-suggest .item {
+      padding: 8px 12px; cursor: pointer; font-size: 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sup-name-suggest .item:last-child { border-bottom: none; }
+    .sup-name-suggest .item:active { background: rgba(0,0,0,0.05); }
+    .sup-name-suggest .item .gr { font-size: 11px; padding: 2px 6px; border-radius: 8px; color: white; }
+
+    /* 날짜 picker */
+    .date-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+    }
+    .date-cell {
+      padding: 10px 4px; border-radius: 8px; background: var(--secondary-bg);
+      text-align: center; font-size: 13px; font-weight: 500; cursor: pointer;
+      min-height: 40px; display: flex; align-items: center; justify-content: center;
+    }
+    .date-cell.dow { font-size: 10px; color: var(--hint); background: transparent; cursor: default; font-weight: 700; }
+    .date-cell.selected { background: var(--btn); color: var(--btn-text); }
+    .date-cell.today { border: 2px solid var(--btn); }
+    .date-cell.empty { background: transparent; cursor: default; }
+
+    .header-date {
+      cursor: pointer; display: inline-block;
+      padding: 2px 8px; border-radius: 6px; background: rgba(0,122,255,0.12);
+      color: var(--accent); font-size: 13px; font-weight: 600;
+      margin-top: 4px;
+    }
+
     /* ───────── Loading / Empty ───────── */
     .loading {
       padding: 40px; text-align: center; color: var(--hint);
@@ -325,22 +470,75 @@
     </div>
   </div>
 
-  <!-- ───────── Add Employee Modal ───────── -->
-  <div class="modal-backdrop" id="add-modal">
+  <!-- ───────── 지원 추가/편집 Modal ───────── -->
+  <div class="modal-backdrop" id="support-modal">
     <div class="modal">
-      <h2 class="modal-title">➕ 새 직원 추가</h2>
-      <p class="modal-sub">매장 직원 시트에 즉시 등록됩니다</p>
+      <h2 class="modal-title">🔄 지원 입력</h2>
+      <p class="modal-sub">타매장에서 우리 매장에 온 / 우리 매장에서 타매장으로 간 직원</p>
 
-      <div class="modal-section-title">이름</div>
-      <input class="form-input" id="add-name" type="text" placeholder="이름을 입력해주세요" autocomplete="off">
+      <div class="modal-section-title">방향</div>
+      <div class="sup-dir-pick">
+        <div class="sup-dir-chip in"  data-dir="in"  onclick="supSetDir('in')">⬅ 우리 매장에 옴</div>
+        <div class="sup-dir-chip out" data-dir="out" onclick="supSetDir('out')">➡ 타매장에 감</div>
+      </div>
+
+      <div class="modal-section-title" id="sup-store-label">출처 매장</div>
+      <select class="form-input" id="sup-store" onchange="supOnStoreChange()">
+        <option value="">매장 선택</option>
+      </select>
+
+      <div class="modal-section-title">직원 이름</div>
+      <input class="form-input" id="sup-name" type="text" placeholder="이름 입력" autocomplete="off" oninput="supOnNameInput()">
+      <div class="sup-name-suggest" id="sup-suggest" style="display:none"></div>
 
       <div class="modal-section-title">직급</div>
+      <div class="grade-picker" id="sup-grades"></div>
+
+      <div class="modal-section-title" id="sup-scope-label">근무 시간</div>
+      <div class="sup-scope-pick" id="sup-scope-area">
+        <!-- 정직원: 종일/반일 chip — Crew: 시간 input -->
+      </div>
+      <p class="modal-sub" id="sup-info" style="margin-top:6px"></p>
+
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeSupportModal()">취소</button>
+        <button class="modal-btn primary" onclick="confirmSupport()">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── 날짜 변경 Modal ───────── -->
+  <div class="modal-backdrop" id="date-modal">
+    <div class="modal">
+      <h2 class="modal-title" id="date-modal-title">📅 날짜 선택</h2>
+      <p class="modal-sub">해당 월의 다른 날짜를 선택할 수 있습니다 (과거/미래 모두 가능)</p>
+
+      <div class="date-grid" id="date-grid"></div>
+
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeDateModal()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────── 직원 관리 Modal (추가 + 삭제 통합) ───────── -->
+  <div class="modal-backdrop" id="add-modal">
+    <div class="modal">
+      <h2 class="modal-title">👥 직원 관리</h2>
+      <p class="modal-sub">퇴사 처리 / 새 직원 추가 — 저장 시 일괄 반영</p>
+
+      <div class="modal-section-title">현재 직원</div>
+      <div class="manage-list" id="manage-list"></div>
+
+      <div class="modal-section-title">➕ 새 직원 추가</div>
+      <input class="form-input" id="add-name" type="text" placeholder="이름을 입력해주세요" autocomplete="off">
+      <div class="modal-section-title" style="margin-top:12px">직급</div>
       <div class="grade-picker" id="add-grades"></div>
       <p class="modal-sub" id="add-grade-info" style="margin-top:8px"></p>
 
       <div class="modal-actions">
-        <button class="modal-btn secondary" onclick="closeAddModal()">취소</button>
-        <button class="modal-btn primary" onclick="confirmAddEmployee()">추가</button>
+        <button class="modal-btn secondary" onclick="closeAddModal()">닫기</button>
+        <button class="modal-btn primary" onclick="confirmAddEmployee()">➕ 추가</button>
       </div>
     </div>
   </div>
@@ -362,7 +560,12 @@
       employees: [],             // [{id, name, grade, rate, prev: {in, out, break}}]
       entries: {},               // employee_id → {in, out, break, on}
       newEmployees: [],          // [{tempId, name, grade, rate}]
+      deletedEmployees: [],      // [empId] — 퇴사 처리 대기 (저장 시 봇에 전달)
+      hourlyRate: 13000,         // 매장 Crew base 시급 (12500/13000 quick 또는 직접)
       rates: { SV: 20000, SM: 15000, AM: 12000, Pro: 11000, Crew: 10000 },  // 직급별 기본 시급
+      support_daily_hours: { SV: 10.4, SM: 10, AM: 9, Pro: 8, Crew: 8 },
+      all_stores: {},            // {매장명: [{n, g, i}]} — 지원 자동완성용
+      supportEntries: [],        // [{direction: 'in'|'out', other_store, name, grade, hours, mode: 'full'|'half'|null}]
     };
 
     // 출/퇴근 picker 임시 상태
@@ -446,10 +649,7 @@
       if (!parseInitData()) return;
 
       // header
-      const d = new Date(STATE.date);
-      const days = ['일','월','화','수','목','금','토'];
-      document.getElementById('hdr-store').textContent = `📅 ${STATE.store} · ${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
-      document.getElementById('hdr-sub').textContent = STATE.manager ? `${STATE.manager} 매니저` : '인건비 입력';
+      renderHeader();
 
       // entries 초기화 (어제 시간 default, prev 없으면 휴무)
       STATE.employees.forEach(emp => {
@@ -470,6 +670,16 @@
       document.getElementById('save-btn').disabled = false;
     }
 
+    function renderHeader() {
+      const d = new Date(STATE.date);
+      const days = ['일','월','화','수','목','금','토'];
+      document.getElementById('hdr-store').textContent =
+        `📅 ${STATE.store} · ${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
+      const subEl = document.getElementById('hdr-sub');
+      subEl.innerHTML = (STATE.manager ? `${STATE.manager} 매니저` : '인건비 입력')
+        + ` · <span class="header-date" onclick="openDateModal()">📅 ${STATE.date} 변경</span>`;
+    }
+
     function renderMain() {
       const main = document.getElementById('main');
       main.innerHTML = '';
@@ -481,16 +691,307 @@
       if (fulltime.length) {
         main.appendChild(renderSection('🟢 정직원', fulltime));
       }
+      // Crew 섹션 위에 시급 입력 표시 (크루 없어도 지원에 사용)
+      main.appendChild(renderRateSection());
       if (parttime.length) {
-        main.appendChild(renderSection('🟡 비정규', parttime));
+        main.appendChild(renderSection('🟡 크루', parttime));
       }
 
-      // 직원 추가 버튼
+      // 🔄 지원 섹션
+      main.appendChild(renderSupportSection());
+
+      // 직원 관리 버튼 (추가/삭제 통합)
       const addBtn = document.createElement('div');
       addBtn.className = 'add-btn';
-      addBtn.textContent = '+ 직원 추가';
+      addBtn.textContent = '👥 직원 관리 (추가 · 삭제)';
       addBtn.onclick = openAddModal;
       main.appendChild(addBtn);
+    }
+
+    function renderSupportSection() {
+      const sec = document.createElement('div');
+      sec.className = 'section';
+      sec.innerHTML = `<div class="section-title">
+        <span>🔄 지원 (타매장 ↔ 우리 매장)</span>
+        <span class="section-count">${STATE.supportEntries.length}건</span>
+      </div>`;
+      const list = document.createElement('div');
+      list.className = 'emp-list';
+      STATE.supportEntries.forEach((s, idx) => {
+        const r = document.createElement('div');
+        const dirText = s.direction === 'in' ? '⬅ 왔음' : '➡ 갔음';
+        r.className = 'support-row dir-' + s.direction;
+        const tag = s.direction === 'in' ? 'in' : 'out';
+        const scopeText = s.grade === 'Crew' ? `${s.hours}h` : (s.mode === 'half' ? '반일' : '종일');
+        r.innerHTML = `
+          <span class="support-tag ${tag}">${dirText}</span>
+          <div class="support-info">
+            <div class="name">${s.name} <span class="emp-grade ${s.grade}" style="font-size:10px">${s.grade}</span></div>
+            <div class="meta">${s.other_store} · ${scopeText} (${s.hours.toFixed(1)}h)</div>
+          </div>
+          <button class="support-delete" onclick="removeSupport(${idx})">삭제</button>
+        `;
+        list.appendChild(r);
+      });
+      // 추가 버튼
+      const addBtn = document.createElement('div');
+      addBtn.className = 'add-btn';
+      addBtn.style.margin = '8px 0 0';
+      addBtn.textContent = '+ 지원 추가';
+      addBtn.onclick = () => openSupportModal();
+      sec.appendChild(list);
+      sec.appendChild(addBtn);
+      return sec;
+    }
+
+    // ───────── 지원 modal ─────────
+    let SUP_CTX = null;  // {direction, other_store, name, grade, hours, mode}
+
+    function openSupportModal() {
+      SUP_CTX = { direction: null, other_store: '', name: '', grade: null, hours: 0, mode: 'full' };
+      document.getElementById('sup-name').value = '';
+      document.getElementById('sup-info').textContent = '';
+      document.getElementById('sup-suggest').style.display = 'none';
+      document.querySelectorAll('.sup-dir-chip').forEach(c => c.classList.remove('selected'));
+
+      // 매장 드롭다운 (자기 매장 제외)
+      const sel = document.getElementById('sup-store');
+      sel.innerHTML = '<option value="">매장 선택</option>';
+      Object.keys(STATE.all_stores || {}).forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        sel.appendChild(opt);
+      });
+
+      // 직급 picker
+      const gp = document.getElementById('sup-grades');
+      gp.innerHTML = '';
+      GRADES.forEach(g => {
+        const chip = document.createElement('div');
+        chip.className = 'grade-chip';
+        chip.textContent = g;
+        chip.onclick = () => {
+          SUP_CTX.grade = g;
+          markSelected(gp, chip);
+          renderSupScope();
+        };
+        gp.appendChild(chip);
+      });
+
+      renderSupScope();
+      document.getElementById('support-modal').classList.add('show');
+    }
+
+    function closeSupportModal() {
+      document.getElementById('support-modal').classList.remove('show');
+      SUP_CTX = null;
+    }
+
+    function supSetDir(dir) {
+      SUP_CTX.direction = dir;
+      document.querySelectorAll('.sup-dir-chip').forEach(c => {
+        c.classList.toggle('selected', c.dataset.dir === dir);
+      });
+      // 라벨 변경
+      document.getElementById('sup-store-label').textContent =
+        dir === 'in' ? '출처 매장 (어디서 왔는지)' : '행선지 매장 (어디로 갔는지)';
+      supRefreshSuggest();
+    }
+
+    function supOnStoreChange() {
+      SUP_CTX.other_store = document.getElementById('sup-store').value;
+      supRefreshSuggest();
+    }
+
+    function supOnNameInput() {
+      const v = document.getElementById('sup-name').value.trim();
+      SUP_CTX.name = v;
+      supRefreshSuggest();
+    }
+
+    function supRefreshSuggest() {
+      const box = document.getElementById('sup-suggest');
+      const q = (SUP_CTX.name || '').toLowerCase();
+      // 'in' 방향이면 출처매장 직원 list 사용, 'out' 방향이면 자기 매장 직원 list
+      let pool = [];
+      if (SUP_CTX.direction === 'in' && SUP_CTX.other_store) {
+        pool = STATE.all_stores[SUP_CTX.other_store] || [];
+        pool = pool.map(e => ({ name: e.n, grade: e.g, id: e.i }));
+      } else if (SUP_CTX.direction === 'out') {
+        pool = STATE.employees.filter(e => !e.isNew).map(e => ({
+          name: e.name, grade: e.grade, id: e.id
+        }));
+      }
+      const filtered = q ? pool.filter(e => e.name.toLowerCase().includes(q)) : pool;
+      if (!filtered.length) { box.style.display = 'none'; return; }
+      box.innerHTML = filtered.slice(0, 8).map(e => `
+        <div class="item" onclick="supPickName('${e.name.replace(/'/g, "\\'")}','${e.grade}')">
+          <span>${e.name}</span>
+          <span class="gr emp-grade ${e.grade}">${e.grade}</span>
+        </div>
+      `).join('');
+      box.style.display = 'block';
+    }
+
+    function supPickName(name, grade) {
+      SUP_CTX.name = name;
+      SUP_CTX.grade = grade;
+      document.getElementById('sup-name').value = name;
+      document.getElementById('sup-suggest').style.display = 'none';
+      // 직급 chip 강조
+      const gp = document.getElementById('sup-grades');
+      gp.querySelectorAll('.grade-chip').forEach(c => {
+        c.classList.toggle('selected', c.textContent === grade);
+      });
+      renderSupScope();
+    }
+
+    function renderSupScope() {
+      const area = document.getElementById('sup-scope-area');
+      const label = document.getElementById('sup-scope-label');
+      if (!SUP_CTX.grade) {
+        area.innerHTML = '<div style="color:var(--hint);font-size:13px;padding:8px">직급 선택 후 표시됨</div>';
+        label.textContent = '근무 시간';
+        return;
+      }
+      const sdh = STATE.support_daily_hours || {};
+      if (SUP_CTX.grade === 'Crew') {
+        label.textContent = 'Crew 근무 시간';
+        area.innerHTML = `
+          <input class="form-input" type="number" step="0.5" min="0" max="24"
+                 value="${SUP_CTX.hours || ''}" placeholder="시간"
+                 oninput="supSetHours(this.value)">
+        `;
+      } else {
+        const full = sdh[SUP_CTX.grade] || 8;
+        const half = full / 2;
+        // 자동 hours 동기화
+        if (!SUP_CTX.mode) SUP_CTX.mode = 'full';
+        SUP_CTX.hours = SUP_CTX.mode === 'half' ? half : full;
+        label.textContent = `${SUP_CTX.grade} 종일/반일 (종일 ${full}h)`;
+        area.innerHTML = `
+          <div class="sup-scope-chip ${SUP_CTX.mode==='full'?'selected':''}" onclick="supSetMode('full')">종일 (${full}h)</div>
+          <div class="sup-scope-chip ${SUP_CTX.mode==='half'?'selected':''}" onclick="supSetMode('half')">반일 (${half}h)</div>
+        `;
+      }
+    }
+
+    function supSetMode(mode) {
+      SUP_CTX.mode = mode;
+      renderSupScope();
+    }
+    function supSetHours(v) {
+      SUP_CTX.hours = parseFloat(v) || 0;
+    }
+
+    function confirmSupport() {
+      if (!SUP_CTX.direction) { alert('방향(왔음/갔음)을 선택해주세요'); return; }
+      if (!SUP_CTX.other_store) { alert('상대 매장을 선택해주세요'); return; }
+      if (!SUP_CTX.name) { alert('직원 이름을 입력해주세요'); return; }
+      if (!SUP_CTX.grade) { alert('직급을 선택해주세요'); return; }
+      if (!SUP_CTX.hours || SUP_CTX.hours <= 0) { alert('근무 시간을 입력해주세요'); return; }
+      STATE.supportEntries.push({
+        direction: SUP_CTX.direction,
+        other_store: SUP_CTX.other_store,
+        name: SUP_CTX.name,
+        grade: SUP_CTX.grade,
+        hours: SUP_CTX.hours,
+        mode: SUP_CTX.grade === 'Crew' ? null : SUP_CTX.mode,
+      });
+      closeSupportModal();
+      renderMain();
+      updateSummary();
+    }
+
+    function removeSupport(idx) {
+      STATE.supportEntries.splice(idx, 1);
+      renderMain();
+      updateSummary();
+    }
+
+    // ───────── 날짜 picker modal ─────────
+    function openDateModal() {
+      const d = new Date(STATE.date);
+      const y = d.getFullYear(), m = d.getMonth();
+      const first = new Date(y, m, 1);
+      const last = new Date(y, m + 1, 0);
+      const todayStr = new Date().toISOString().split('T')[0];
+      document.getElementById('date-modal-title').textContent =
+        `📅 ${y}년 ${m+1}월 — 날짜 선택`;
+      const grid = document.getElementById('date-grid');
+      grid.innerHTML = '';
+      ['일','월','화','수','목','금','토'].forEach(d => {
+        const c = document.createElement('div');
+        c.className = 'date-cell dow';
+        c.textContent = d;
+        grid.appendChild(c);
+      });
+      // 첫 주 빈칸
+      for (let i = 0; i < first.getDay(); i++) {
+        const c = document.createElement('div');
+        c.className = 'date-cell empty';
+        grid.appendChild(c);
+      }
+      for (let day = 1; day <= last.getDate(); day++) {
+        const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const c = document.createElement('div');
+        c.className = 'date-cell';
+        if (dateStr === STATE.date) c.classList.add('selected');
+        if (dateStr === todayStr) c.classList.add('today');
+        c.textContent = day;
+        c.onclick = () => pickDate(dateStr);
+        grid.appendChild(c);
+      }
+      document.getElementById('date-modal').classList.add('show');
+    }
+
+    function closeDateModal() {
+      document.getElementById('date-modal').classList.remove('show');
+    }
+
+    function pickDate(dateStr) {
+      STATE.date = dateStr;
+      // 날짜 변경 시 supportEntries는 유지 (사용자가 명시적으로 삭제 가능), entries는 그대로
+      renderHeader();
+      closeDateModal();
+    }
+
+    function renderRateSection() {
+      const sec = document.createElement('div');
+      sec.className = 'rate-section';
+      const presets = [12500, 13000];
+      const customActive = !presets.includes(STATE.hourlyRate);
+      sec.innerHTML = `
+        <div class="rate-title">💵 Crew 시급 (보험·퇴직금 별도)</div>
+        <div class="rate-row">
+          ${presets.map(v => `
+            <div class="rate-chip ${STATE.hourlyRate === v ? 'selected' : ''}"
+                 onclick="setHourlyRate(${v})">${v.toLocaleString()}</div>
+          `).join('')}
+          <input class="rate-input ${customActive ? 'active' : ''}" type="number" inputmode="numeric"
+                 id="rate-input" placeholder="직접"
+                 value="${customActive ? STATE.hourlyRate : ''}"
+                 onchange="onCustomRateInput(this.value)"
+                 oninput="onCustomRateInput(this.value)">
+        </div>
+      `;
+      return sec;
+    }
+
+    function setHourlyRate(v) {
+      STATE.hourlyRate = v;
+      const input = document.getElementById('rate-input');
+      if (input) input.value = '';
+      // 시급만 변경 — 직원 row 데이터는 그대로
+      const rateSection = document.querySelector('.rate-section');
+      if (rateSection) rateSection.replaceWith(renderRateSection());
+    }
+    function onCustomRateInput(v) {
+      const n = parseInt(v, 10);
+      if (!isNaN(n) && n >= 1000 && n <= 50000) {
+        STATE.hourlyRate = n;
+        document.querySelectorAll('.rate-chip').forEach(el => el.classList.remove('selected'));
+      }
     }
 
     function renderSection(title, employees) {
@@ -508,11 +1009,12 @@
     function renderEmpRow(emp) {
       const ent = STATE.entries[emp.id];
       const row = document.createElement('div');
-      row.className = 'emp-row' + (ent.on ? '' : ' off');
+      const incomplete = ent.on && (!ent.in || !ent.out);
+      row.className = 'emp-row' + (ent.on ? '' : ' off') + (incomplete ? ' incomplete' : '');
       row.id = `emp-row-${emp.id}`;
 
       const work = ent.on ? calcWork(ent.in, ent.out, ent.breakH) : 0;
-      const workStr = ent.on ? `${work.toFixed(1)}h` : '휴무';
+      const workStr = ent.on ? (incomplete ? '⚠️ 시간 입력 필요' : `${work.toFixed(1)}h`) : '휴무';
 
       row.innerHTML = `
         <div class="emp-name-row">
@@ -533,7 +1035,7 @@
               <span class="${ent.out ? '' : 'empty'}">${ent.out || '--:--'}</span>
             </div>
             <div class="break-chip" onclick="openBreakModal('${emp.id}')">휴식 ${ent.breakH}h</div>
-            <div class="work-hours">${workStr}</div>
+            <div class="work-hours ${incomplete ? 'warn' : ''}">${workStr}</div>
           </div>
         ` : `
           <div class="emp-time-row">
@@ -555,14 +1057,23 @@
 
     function updateSummary() {
       // 미니앱에선 시급/인건비 노출 X — 인원/시간만
-      let totalH = 0, count = 0;
-      STATE.employees.concat(STATE.newEmployees).forEach(emp => {
+      let totalH = 0, count = 0, incompleteCount = 0;
+      STATE.employees.forEach(emp => {
         const ent = STATE.entries[emp.id];
         if (!ent?.on) return;
+        if (!ent.in || !ent.out) { incompleteCount++; return; }
         const h = calcWork(ent.in, ent.out, ent.breakH);
         if (h > 0) { count++; totalH += h; }
       });
-      document.getElementById('sum-amount').textContent = `${count}명 · ${totalH.toFixed(1)}h 근무`;
+      const sumEl = document.getElementById('sum-amount');
+      const btn = document.getElementById('save-btn');
+      if (incompleteCount > 0) {
+        sumEl.innerHTML = `<span style="color:var(--destructive)">⚠️ ${incompleteCount}명 출퇴근 시간 누락</span>`;
+        if (btn) { btn.disabled = true; btn.textContent = '⚠️ 시간 입력 필요'; }
+      } else {
+        sumEl.textContent = `${count}명 · ${totalH.toFixed(1)}h 근무`;
+        if (btn) { btn.disabled = false; btn.textContent = '💾 저장'; }
+      }
     }
 
     // ───────── 토글 ─────────
@@ -689,13 +1200,14 @@
       closeBreakModal();
     }
 
-    // ───────── 직원 추가 modal ─────────
+    // ───────── 직원 관리 modal (추가 + 삭제 통합) ─────────
     const GRADES = ['SV','SM','AM','Pro','Crew'];
     function openAddModal() {
       AM_CTX = { name: '', grade: null };
       document.getElementById('add-name').value = '';
       document.getElementById('add-grade-info').textContent = '';
 
+      // 직급 picker
       const gp = document.getElementById('add-grades');
       gp.innerHTML = '';
       GRADES.forEach(g => {
@@ -710,11 +1222,56 @@
         gp.appendChild(chip);
       });
 
+      // 현재 직원 list (삭제 토글)
+      renderManageList();
+
       document.getElementById('add-modal').classList.add('show');
     }
+
+    function renderManageList() {
+      const box = document.getElementById('manage-list');
+      box.innerHTML = '';
+      const original = STATE.employees.filter(e => !e.isNew);
+      if (original.length === 0) {
+        box.innerHTML = '<div class="manage-row"><span class="manage-name" style="color:var(--hint)">직원이 없습니다</span></div>';
+        return;
+      }
+      original.forEach(emp => {
+        const row = document.createElement('div');
+        const isDeleting = STATE.deletedEmployees.includes(emp.id);
+        row.className = 'manage-row' + (isDeleting ? ' deleting' : '');
+        row.innerHTML = `
+          <span class="manage-name">
+            ${emp.name}
+            <span class="emp-grade ${emp.grade}" style="margin-left:6px">${emp.grade}</span>
+          </span>
+          ${isDeleting
+            ? `<button class="manage-undo-btn" onclick="undoDelete('${emp.id}')">취소</button>`
+            : `<button class="manage-del-btn" onclick="markForDelete('${emp.id}','${emp.name.replace(/'/g, "\\'")}')">🗑 퇴사</button>`
+          }
+        `;
+        box.appendChild(row);
+      });
+    }
+
+    function markForDelete(empId, empName) {
+      if (!confirm(`${empName} 직원을 퇴사 처리하시겠습니까?\n(저장 시 본사 시트에 퇴사일이 기록됩니다)`)) return;
+      if (!STATE.deletedEmployees.includes(empId)) STATE.deletedEmployees.push(empId);
+      // 입력화면에서도 휴무로 토글
+      if (STATE.entries[empId]) STATE.entries[empId].on = false;
+      renderManageList();
+    }
+    function undoDelete(empId) {
+      STATE.deletedEmployees = STATE.deletedEmployees.filter(id => id !== empId);
+      renderManageList();
+    }
+
     function closeAddModal() {
       document.getElementById('add-modal').classList.remove('show');
       AM_CTX = null;
+      // 퇴사 처리 반영을 위해 메인 재렌더 (휴무 토글된 행 반영)
+      renderMain();
+      updateSummary();
     }
     function confirmAddEmployee() {
       const name = document.getElementById('add-name').value.trim();
@@ -728,31 +1285,50 @@
       STATE.employees.push(newEmp);
       STATE.entries[tempId] = { in: '09:00', out: '18:00', breakH: 1.0, on: true };
 
-      renderMain();
-      updateSummary();
-      closeAddModal();
+      // 모달은 유지 — 사용자가 더 추가/삭제할 수 있도록. 입력 필드만 reset.
+      document.getElementById('add-name').value = '';
+      AM_CTX = { name: '', grade: null };
+      document.querySelectorAll('#add-grades .grade-chip').forEach(c => c.classList.remove('selected'));
+      document.getElementById('add-grade-info').textContent = `✓ ${name} (${newEmp.grade}) 추가 대기 중`;
+      renderManageList();
     }
 
     // ───────── 저장 ─────────
     function onSave() {
+      // 출근 ON + 시간 미입력 직원 차단
+      const incomplete = STATE.employees.filter(emp => {
+        const ent = STATE.entries[emp.id];
+        return ent?.on && (!ent.in || !ent.out);
+      });
+      if (incomplete.length > 0) {
+        alert(`⚠️ 다음 직원의 출퇴근 시간을 입력해주세요:\n\n` +
+              incomplete.map(e => `• ${e.name} (${e.grade})`).join('\n'));
+        return;
+      }
       const payload = {
         store: STATE.store,
         date: STATE.date,
+        hourly_rate: STATE.hourlyRate,                     // Crew base 시급 (예: 13000)
+        deleted_employees: STATE.deletedEmployees.slice(), // 퇴사 처리 대상 직원ID list
         entries: [],
+        support_entries: STATE.supportEntries.slice(),     // [{direction, other_store, name, grade, hours, mode}]
         // 시급은 본사 마스터 시급 시트에서 직급별 자동 적용
         new_employees: STATE.newEmployees.map(e => ({ name: e.name, grade: e.grade })),
       };
       STATE.employees.forEach(emp => {
         const ent = STATE.entries[emp.id];
         if (!ent) return;
-        const work = ent.on ? calcWork(ent.in, ent.out, ent.breakH) : 0;
+        // 퇴사 대기 직원은 저장 시 자동 휴무로 (인건비 기록 X)
+        const isDeleting = STATE.deletedEmployees.includes(emp.id);
+        const on = ent.on && !isDeleting;
+        const work = on ? calcWork(ent.in, ent.out, ent.breakH) : 0;
         payload.entries.push({
           id: emp.isNew ? null : emp.id,
           name: emp.name,
           grade: emp.grade,
-          in: ent.on ? ent.in : null,
-          out: ent.on ? ent.out : null,
-          breakH: ent.on ? ent.breakH : 0,
+          in: on ? ent.in : null,
+          out: on ? ent.out : null,
+          breakH: on ? ent.breakH : 0,
           hours: work,
         });
       });
