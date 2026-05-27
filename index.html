@@ -77,7 +77,30 @@
       background: rgba(255,59,48,0.06);
       border-left: 3px solid var(--destructive);
     }
+    .emp-row.deleting { opacity: 0.4; text-decoration: line-through; background: rgba(0,0,0,0.04); }
     .work-hours.warn { color: var(--destructive); font-weight: 700; }
+
+    /* 행 단위 삭제 버튼 */
+    .row-delete {
+      width: 28px; height: 28px; border-radius: 14px;
+      background: rgba(255,59,48,0.12); color: var(--destructive);
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      border: none; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .row-delete:active { background: rgba(255,59,48,0.25); }
+    .row-delete.undo { background: rgba(0,0,0,0.08); color: var(--text); font-size: 11px; }
+
+    /* Crew 행의 개인 시급 chip */
+    .crew-rate-chip {
+      padding: 4px 8px; border-radius: 6px;
+      background: rgba(255,149,0,0.15); color: #b35a00;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      font-variant-numeric: tabular-nums;
+      margin-left: 6px;
+    }
+    .crew-rate-chip:active { background: rgba(255,149,0,0.35); }
 
     .emp-name-row {
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -470,6 +493,28 @@
     </div>
   </div>
 
+  <!-- ───────── Crew 시급 편집 mini-modal ───────── -->
+  <div class="modal-backdrop" id="crew-rate-modal">
+    <div class="modal">
+      <h2 class="modal-title" id="crm-title">💵 시급 설정</h2>
+      <p class="modal-sub" id="crm-sub">개인별 base 시급 (보험·퇴직금 별도)</p>
+
+      <div class="modal-section-title">자주 쓰는 값</div>
+      <div class="rate-row">
+        <div class="rate-chip" data-rate="12500" onclick="crmSet(12500)">12,500</div>
+        <div class="rate-chip" data-rate="13000" onclick="crmSet(13000)">13,000</div>
+        <input class="rate-input" type="number" inputmode="numeric"
+               id="crm-input" placeholder="직접 입력"
+               oninput="crmInput(this.value)">
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeCrewRateModal()">취소</button>
+        <button class="modal-btn primary" onclick="confirmCrewRate()">저장</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ───────── 지원 추가/편집 Modal ───────── -->
   <div class="modal-backdrop" id="support-modal">
     <div class="modal">
@@ -521,24 +566,32 @@
     </div>
   </div>
 
-  <!-- ───────── 직원 관리 Modal (추가 + 삭제 통합) ───────── -->
+  <!-- ───────── 직원 추가 Modal (신규 추가 전용) ───────── -->
   <div class="modal-backdrop" id="add-modal">
     <div class="modal">
-      <h2 class="modal-title">👥 직원 관리</h2>
-      <p class="modal-sub">퇴사 처리 / 새 직원 추가 — 저장 시 일괄 반영</p>
+      <h2 class="modal-title">➕ 새 직원 추가</h2>
+      <p class="modal-sub">저장 시 본사 시트에 등록됩니다 (삭제는 메인 화면 ✕ 버튼)</p>
 
-      <div class="modal-section-title">현재 직원</div>
-      <div class="manage-list" id="manage-list"></div>
-
-      <div class="modal-section-title">➕ 새 직원 추가</div>
+      <div class="modal-section-title">이름</div>
       <input class="form-input" id="add-name" type="text" placeholder="이름을 입력해주세요" autocomplete="off">
-      <div class="modal-section-title" style="margin-top:12px">직급</div>
+
+      <div class="modal-section-title">직급</div>
       <div class="grade-picker" id="add-grades"></div>
       <p class="modal-sub" id="add-grade-info" style="margin-top:8px"></p>
 
+      <div id="add-crew-rate-area" style="display:none">
+        <div class="modal-section-title">💵 Crew 시급 (base — 보험·퇴직금 별도)</div>
+        <div class="rate-row">
+          <div class="rate-chip" data-rate="12500" onclick="addSetCrewRate(12500)">12,500</div>
+          <div class="rate-chip selected" data-rate="13000" onclick="addSetCrewRate(13000)">13,000</div>
+          <input class="rate-input" type="number" inputmode="numeric"
+                 id="add-crew-rate" placeholder="직접" oninput="addCrewRateInput(this.value)">
+        </div>
+      </div>
+
       <div class="modal-actions">
-        <button class="modal-btn secondary" onclick="closeAddModal()">닫기</button>
-        <button class="modal-btn primary" onclick="confirmAddEmployee()">➕ 추가</button>
+        <button class="modal-btn secondary" onclick="closeAddModal()">취소</button>
+        <button class="modal-btn primary" onclick="confirmAddEmployee()">추가</button>
       </div>
     </div>
   </div>
@@ -557,15 +610,15 @@
       store: '',
       date: '',                  // YYYY-MM-DD
       manager: '',
-      employees: [],             // [{id, name, grade, rate, prev: {in, out, break}}]
+      employees: [],             // [{id, name, grade, rate, base_rate, prev}]
       entries: {},               // employee_id → {in, out, break, on}
-      newEmployees: [],          // [{tempId, name, grade, rate}]
-      deletedEmployees: [],      // [empId] — 퇴사 처리 대기 (저장 시 봇에 전달)
-      hourlyRate: 13000,         // 매장 Crew base 시급 (12500/13000 quick 또는 직접)
+      newEmployees: [],          // [{tempId, name, grade, base_rate (Crew만)}]
+      deletedEmployees: [],      // [empId] — 삭제 처리 대기 (저장 시 봇에 전달)
+      crewRateChanges: {},       // {empId: new_base_rate} — Crew 개인 시급 변경분
       rates: { SV: 20000, SM: 15000, AM: 12000, Pro: 11000, Crew: 10000 },  // 직급별 기본 시급
       support_daily_hours: { SV: 10.4, SM: 10, AM: 9, Pro: 8, Crew: 8 },
       all_stores: {},            // {매장명: [{n, g, i}]} — 지원 자동완성용
-      supportEntries: [],        // [{direction: 'in'|'out', other_store, name, grade, hours, mode: 'full'|'half'|null}]
+      supportEntries: [],        // [{direction: 'in'|'out', other_store, name, grade, hours, mode}]
     };
 
     // 출/퇴근 picker 임시 상태
@@ -684,15 +737,13 @@
       const main = document.getElementById('main');
       main.innerHTML = '';
 
-      // 정직원 / 비정규 그룹 분리
+      // 정직원 / 비정규 그룹 분리 (퇴사 대기 직원도 화면엔 표시 — 회색)
       const fulltime = STATE.employees.filter(e => ['SV','SM','AM','Pro'].includes(e.grade));
       const parttime = STATE.employees.filter(e => e.grade === 'Crew');
 
       if (fulltime.length) {
         main.appendChild(renderSection('🟢 정직원', fulltime));
       }
-      // Crew 섹션 위에 시급 입력 표시 (크루 없어도 지원에 사용)
-      main.appendChild(renderRateSection());
       if (parttime.length) {
         main.appendChild(renderSection('🟡 크루', parttime));
       }
@@ -700,10 +751,10 @@
       // 🔄 지원 섹션
       main.appendChild(renderSupportSection());
 
-      // 직원 관리 버튼 (추가/삭제 통합)
+      // 직원 추가 버튼
       const addBtn = document.createElement('div');
       addBtn.className = 'add-btn';
-      addBtn.textContent = '👥 직원 관리 (추가 · 삭제)';
+      addBtn.textContent = '+ 직원 추가';
       addBtn.onclick = openAddModal;
       main.appendChild(addBtn);
     }
@@ -956,43 +1007,7 @@
       closeDateModal();
     }
 
-    function renderRateSection() {
-      const sec = document.createElement('div');
-      sec.className = 'rate-section';
-      const presets = [12500, 13000];
-      const customActive = !presets.includes(STATE.hourlyRate);
-      sec.innerHTML = `
-        <div class="rate-title">💵 Crew 시급 (보험·퇴직금 별도)</div>
-        <div class="rate-row">
-          ${presets.map(v => `
-            <div class="rate-chip ${STATE.hourlyRate === v ? 'selected' : ''}"
-                 onclick="setHourlyRate(${v})">${v.toLocaleString()}</div>
-          `).join('')}
-          <input class="rate-input ${customActive ? 'active' : ''}" type="number" inputmode="numeric"
-                 id="rate-input" placeholder="직접"
-                 value="${customActive ? STATE.hourlyRate : ''}"
-                 onchange="onCustomRateInput(this.value)"
-                 oninput="onCustomRateInput(this.value)">
-        </div>
-      `;
-      return sec;
-    }
-
-    function setHourlyRate(v) {
-      STATE.hourlyRate = v;
-      const input = document.getElementById('rate-input');
-      if (input) input.value = '';
-      // 시급만 변경 — 직원 row 데이터는 그대로
-      const rateSection = document.querySelector('.rate-section');
-      if (rateSection) rateSection.replaceWith(renderRateSection());
-    }
-    function onCustomRateInput(v) {
-      const n = parseInt(v, 10);
-      if (!isNaN(n) && n >= 1000 && n <= 50000) {
-        STATE.hourlyRate = n;
-        document.querySelectorAll('.rate-chip').forEach(el => el.classList.remove('selected'));
-      }
-    }
+    // (구) 매장 단일 Crew 시급 입력 — 개인별 시급으로 변경되어 제거됨
 
     function renderSection(title, employees) {
       const sec = document.createElement('div');
@@ -1008,23 +1023,47 @@
 
     function renderEmpRow(emp) {
       const ent = STATE.entries[emp.id];
+      const isDeleting = STATE.deletedEmployees.includes(emp.id);
       const row = document.createElement('div');
-      const incomplete = ent.on && (!ent.in || !ent.out);
-      row.className = 'emp-row' + (ent.on ? '' : ' off') + (incomplete ? ' incomplete' : '');
+      const incomplete = !isDeleting && ent.on && (!ent.in || !ent.out);
+      row.className = 'emp-row'
+        + (ent.on ? '' : ' off')
+        + (incomplete ? ' incomplete' : '')
+        + (isDeleting ? ' deleting' : '');
       row.id = `emp-row-${emp.id}`;
 
       const work = ent.on ? calcWork(ent.in, ent.out, ent.breakH) : 0;
       const workStr = ent.on ? (incomplete ? '⚠️ 시간 입력 필요' : `${work.toFixed(1)}h`) : '휴무';
+
+      // Crew 시급 chip (개인별)
+      const crewRateChip = (emp.grade === 'Crew' && !emp.isNew)
+        ? `<span class="crew-rate-chip" onclick="openCrewRateModal('${emp.id}')">💵 ${(STATE.crewRateChanges[emp.id] ?? emp.base_rate ?? 13000).toLocaleString()}</span>`
+        : '';
+
+      // 삭제/취소 버튼
+      const deleteBtn = isDeleting
+        ? `<button class="row-delete undo" onclick="undoEmpDelete('${emp.id}')" title="삭제 취소">↺</button>`
+        : (emp.isNew
+          ? `<button class="row-delete" onclick="removeNewEmployee('${emp.id}')" title="신규 직원 제외">✕</button>`
+          : `<button class="row-delete" onclick="markEmpDelete('${emp.id}','${(emp.name||'').replace(/'/g, "\\'")}')" title="직원 삭제">✕</button>`);
 
       row.innerHTML = `
         <div class="emp-name-row">
           <div>
             <span class="emp-name">${emp.name}</span>
             <span class="emp-grade ${emp.grade}">${emp.grade}</span>
+            ${crewRateChip}
           </div>
-          <div class="toggle ${ent.on ? 'on' : ''}" onclick="toggleOn('${emp.id}')"></div>
+          <div style="display:flex; gap:6px; align-items:center">
+            ${deleteBtn}
+            <div class="toggle ${ent.on ? 'on' : ''}" onclick="toggleOn('${emp.id}')"></div>
+          </div>
         </div>
-        ${ent.on ? `
+        ${isDeleting ? `
+          <div class="emp-time-row">
+            <div class="off-label">🗑 삭제 대기 — 저장 시 시트에 반영</div>
+          </div>
+        ` : (ent.on ? `
           <div class="emp-time-row">
             <div class="time-chip" onclick="openTimeModal('${emp.id}', 'in')">
               <span class="label">출</span>
@@ -1041,9 +1080,80 @@
           <div class="emp-time-row">
             <div class="off-label">휴무 · 토글 ON으로 변경</div>
           </div>
-        `}
+        `)}
       `;
       return row;
+    }
+
+    // ───────── 행 단위 삭제 ─────────
+    function markEmpDelete(empId, empName) {
+      if (!confirm(`${empName} 직원을 삭제하시겠습니까?\n저장 시 본사 시트에 삭제일자가 기록됩니다.`)) return;
+      if (!STATE.deletedEmployees.includes(empId)) STATE.deletedEmployees.push(empId);
+      if (STATE.entries[empId]) STATE.entries[empId].on = false;
+      refreshRow(empId);
+    }
+    function undoEmpDelete(empId) {
+      STATE.deletedEmployees = STATE.deletedEmployees.filter(id => id !== empId);
+      refreshRow(empId);
+    }
+    function removeNewEmployee(empId) {
+      // 신규 추가 대기 직원을 미니앱 내에서 제거 (시트 반영 X)
+      STATE.newEmployees = STATE.newEmployees.filter(e => e.id !== empId);
+      STATE.employees = STATE.employees.filter(e => e.id !== empId);
+      delete STATE.entries[empId];
+      renderMain();
+      updateSummary();
+    }
+
+    // ───────── Crew 개인 시급 mini-modal ─────────
+    let CRM_CTX = null;  // {empId, value}
+
+    function openCrewRateModal(empId) {
+      const emp = STATE.employees.find(e => e.id === empId);
+      if (!emp) return;
+      const current = STATE.crewRateChanges[empId] ?? emp.base_rate ?? 13000;
+      CRM_CTX = { empId, value: current };
+      document.getElementById('crm-title').textContent = `💵 ${emp.name} 시급`;
+      document.getElementById('crm-sub').textContent = '개인별 base 시급 (보험·퇴직금 별도). 저장 시 본사 시트에도 반영.';
+      const input = document.getElementById('crm-input');
+      const presets = [12500, 13000];
+      input.value = presets.includes(current) ? '' : current;
+      document.querySelectorAll('#crew-rate-modal .rate-chip').forEach(el => {
+        el.classList.toggle('selected', Number(el.dataset.rate) === current);
+      });
+      document.getElementById('crew-rate-modal').classList.add('show');
+    }
+    function closeCrewRateModal() {
+      document.getElementById('crew-rate-modal').classList.remove('show');
+      CRM_CTX = null;
+    }
+    function crmSet(v) {
+      CRM_CTX.value = v;
+      document.getElementById('crm-input').value = '';
+      document.querySelectorAll('#crew-rate-modal .rate-chip').forEach(el => {
+        el.classList.toggle('selected', Number(el.dataset.rate) === v);
+      });
+    }
+    function crmInput(v) {
+      const n = parseInt(v, 10);
+      if (!isNaN(n) && n >= 1000 && n <= 50000) {
+        CRM_CTX.value = n;
+        document.querySelectorAll('#crew-rate-modal .rate-chip').forEach(el => el.classList.remove('selected'));
+      }
+    }
+    function confirmCrewRate() {
+      if (!CRM_CTX || !CRM_CTX.value) { alert('시급을 입력해주세요'); return; }
+      const emp = STATE.employees.find(e => e.id === CRM_CTX.empId);
+      if (!emp) { closeCrewRateModal(); return; }
+      const prev = emp.base_rate;
+      if (CRM_CTX.value === prev) {
+        // 원래 값으로 되돌림 → 변경 취소
+        delete STATE.crewRateChanges[CRM_CTX.empId];
+      } else {
+        STATE.crewRateChanges[CRM_CTX.empId] = CRM_CTX.value;
+      }
+      closeCrewRateModal();
+      refreshRow(CRM_CTX?.empId || emp.id);
     }
 
     function refreshRow(empId) {
@@ -1200,12 +1310,17 @@
       closeBreakModal();
     }
 
-    // ───────── 직원 관리 modal (추가 + 삭제 통합) ─────────
+    // ───────── 직원 추가 modal (신규 추가 전용) ─────────
     const GRADES = ['SV','SM','AM','Pro','Crew'];
     function openAddModal() {
-      AM_CTX = { name: '', grade: null };
+      AM_CTX = { name: '', grade: null, crew_rate: 13000 };
       document.getElementById('add-name').value = '';
       document.getElementById('add-grade-info').textContent = '';
+      document.getElementById('add-crew-rate-area').style.display = 'none';
+      document.getElementById('add-crew-rate').value = '';
+      document.querySelectorAll('#add-crew-rate-area .rate-chip').forEach(el => {
+        el.classList.toggle('selected', Number(el.dataset.rate) === 13000);
+      });
 
       // 직급 picker
       const gp = document.getElementById('add-grades');
@@ -1218,58 +1333,33 @@
           AM_CTX.grade = g;
           markSelected(gp, chip);
           document.getElementById('add-grade-info').textContent = `${g} 직급으로 등록됩니다`;
+          // Crew면 시급 입력 표시
+          document.getElementById('add-crew-rate-area').style.display = (g === 'Crew') ? 'block' : 'none';
         };
         gp.appendChild(chip);
       });
 
-      // 현재 직원 list (삭제 토글)
-      renderManageList();
-
       document.getElementById('add-modal').classList.add('show');
     }
 
-    function renderManageList() {
-      const box = document.getElementById('manage-list');
-      box.innerHTML = '';
-      const original = STATE.employees.filter(e => !e.isNew);
-      if (original.length === 0) {
-        box.innerHTML = '<div class="manage-row"><span class="manage-name" style="color:var(--hint)">직원이 없습니다</span></div>';
-        return;
-      }
-      original.forEach(emp => {
-        const row = document.createElement('div');
-        const isDeleting = STATE.deletedEmployees.includes(emp.id);
-        row.className = 'manage-row' + (isDeleting ? ' deleting' : '');
-        row.innerHTML = `
-          <span class="manage-name">
-            ${emp.name}
-            <span class="emp-grade ${emp.grade}" style="margin-left:6px">${emp.grade}</span>
-          </span>
-          ${isDeleting
-            ? `<button class="manage-undo-btn" onclick="undoDelete('${emp.id}')">취소</button>`
-            : `<button class="manage-del-btn" onclick="markForDelete('${emp.id}','${emp.name.replace(/'/g, "\\'")}')">🗑 퇴사</button>`
-          }
-        `;
-        box.appendChild(row);
+    function addSetCrewRate(v) {
+      AM_CTX.crew_rate = v;
+      document.getElementById('add-crew-rate').value = '';
+      document.querySelectorAll('#add-crew-rate-area .rate-chip').forEach(el => {
+        el.classList.toggle('selected', Number(el.dataset.rate) === v);
       });
     }
-
-    function markForDelete(empId, empName) {
-      if (!confirm(`${empName} 직원을 퇴사 처리하시겠습니까?\n(저장 시 본사 시트에 퇴사일이 기록됩니다)`)) return;
-      if (!STATE.deletedEmployees.includes(empId)) STATE.deletedEmployees.push(empId);
-      // 입력화면에서도 휴무로 토글
-      if (STATE.entries[empId]) STATE.entries[empId].on = false;
-      renderManageList();
-    }
-    function undoDelete(empId) {
-      STATE.deletedEmployees = STATE.deletedEmployees.filter(id => id !== empId);
-      renderManageList();
+    function addCrewRateInput(v) {
+      const n = parseInt(v, 10);
+      if (!isNaN(n) && n >= 1000 && n <= 50000) {
+        AM_CTX.crew_rate = n;
+        document.querySelectorAll('#add-crew-rate-area .rate-chip').forEach(el => el.classList.remove('selected'));
+      }
     }
 
     function closeAddModal() {
       document.getElementById('add-modal').classList.remove('show');
       AM_CTX = null;
-      // 퇴사 처리 반영을 위해 메인 재렌더 (휴무 토글된 행 반영)
       renderMain();
       updateSummary();
     }
@@ -1277,20 +1367,21 @@
       const name = document.getElementById('add-name').value.trim();
       if (!name) { alert('이름을 입력해주세요'); return; }
       if (!AM_CTX.grade) { alert('직급을 선택해주세요'); return; }
+      if (AM_CTX.grade === 'Crew' && (!AM_CTX.crew_rate || AM_CTX.crew_rate <= 0)) {
+        alert('Crew 시급을 입력해주세요'); return;
+      }
 
-      // 임시 ID로 newEmployees에 추가 (시급은 본사에서 직급별 기본값 자동 적용)
+      // 임시 ID로 newEmployees에 추가
       const tempId = `NEW_${Date.now()}`;
-      const newEmp = { id: tempId, name, grade: AM_CTX.grade, prev: null, isNew: true };
+      const newEmp = {
+        id: tempId, name, grade: AM_CTX.grade, prev: null, isNew: true,
+        base_rate: AM_CTX.grade === 'Crew' ? AM_CTX.crew_rate : null,
+      };
       STATE.newEmployees.push(newEmp);
       STATE.employees.push(newEmp);
       STATE.entries[tempId] = { in: '09:00', out: '18:00', breakH: 1.0, on: true };
 
-      // 모달은 유지 — 사용자가 더 추가/삭제할 수 있도록. 입력 필드만 reset.
-      document.getElementById('add-name').value = '';
-      AM_CTX = { name: '', grade: null };
-      document.querySelectorAll('#add-grades .grade-chip').forEach(c => c.classList.remove('selected'));
-      document.getElementById('add-grade-info').textContent = `✓ ${name} (${newEmp.grade}) 추가 대기 중`;
-      renderManageList();
+      closeAddModal();
     }
 
     // ───────── 저장 ─────────
@@ -1308,21 +1399,23 @@
       const payload = {
         store: STATE.store,
         date: STATE.date,
-        hourly_rate: STATE.hourlyRate,                     // Crew base 시급 (예: 13000)
-        deleted_employees: STATE.deletedEmployees.slice(), // 퇴사 처리 대상 직원ID list
+        deleted_employees: STATE.deletedEmployees.slice(), // 삭제 처리 대상 직원ID list
         entries: [],
         support_entries: STATE.supportEntries.slice(),     // [{direction, other_store, name, grade, hours, mode}]
-        // 시급은 본사 마스터 시급 시트에서 직급별 자동 적용
-        new_employees: STATE.newEmployees.map(e => ({ name: e.name, grade: e.grade })),
+        // Crew 시급은 개인별 — 신규는 base_rate, 기존 변경은 entries.base_rate로 전달
+        new_employees: STATE.newEmployees.map(e => ({
+          name: e.name, grade: e.grade,
+          hourly_rate: e.grade === 'Crew' ? e.base_rate : null,
+        })),
       };
       STATE.employees.forEach(emp => {
         const ent = STATE.entries[emp.id];
         if (!ent) return;
-        // 퇴사 대기 직원은 저장 시 자동 휴무로 (인건비 기록 X)
+        // 삭제 대기 직원은 저장 시 자동 휴무 (인건비 기록 X)
         const isDeleting = STATE.deletedEmployees.includes(emp.id);
         const on = ent.on && !isDeleting;
         const work = on ? calcWork(ent.in, ent.out, ent.breakH) : 0;
-        payload.entries.push({
+        const entryObj = {
           id: emp.isNew ? null : emp.id,
           name: emp.name,
           grade: emp.grade,
@@ -1330,7 +1423,12 @@
           out: on ? ent.out : null,
           breakH: on ? ent.breakH : 0,
           hours: work,
-        });
+        };
+        // Crew 시급 변경분 전달 (개인별)
+        if (emp.grade === 'Crew' && STATE.crewRateChanges[emp.id]) {
+          entryObj.base_rate = STATE.crewRateChanges[emp.id];
+        }
+        payload.entries.push(entryObj);
       });
 
       // 디버그
