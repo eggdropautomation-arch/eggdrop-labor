@@ -704,19 +704,25 @@
       // header
       renderHeader();
 
-      // entries 초기화 (어제 시간 default, prev 없으면 휴무)
+      // entries 초기화 — emp.prev에 오늘 자 기존 입력값이 있으면 그것 사용 (수정 가능)
+      // prev가 없으면 휴무 상태
       STATE.employees.forEach(emp => {
         if (emp.prev) {
           STATE.entries[emp.id] = {
             in: emp.prev.in,
             out: emp.prev.out,
-            breakH: emp.prev.breakH,
+            breakH: emp.prev.breakH || 0,
             on: true,
           };
         } else {
           STATE.entries[emp.id] = { in: null, out: null, breakH: 0, on: false };
         }
       });
+
+      // 기존 지원 입력값 로드 (오늘 자 출퇴근로그의 자체외 row)
+      if (Array.isArray(STATE.prev_support_entries)) {
+        STATE.supportEntries = STATE.prev_support_entries.slice();
+      }
 
       renderMain();
       updateSummary();
