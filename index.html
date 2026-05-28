@@ -1008,9 +1008,34 @@
 
     function pickDate(dateStr) {
       STATE.date = dateStr;
-      // 날짜 변경 시 supportEntries는 유지 (사용자가 명시적으로 삭제 가능), entries는 그대로
+      // 선택 날짜의 prev 로드 → STATE.entries / supportEntries 재구성
+      applyPrevForDate(dateStr);
       renderHeader();
+      renderMain();
+      updateSummary();
       closeDateModal();
+    }
+
+    function applyPrevForDate(dateStr) {
+      // 직원별 prev 적용
+      const prevMap = (STATE.prev_by_date_emp || {})[dateStr] || {};
+      STATE.employees.forEach(emp => {
+        const p = prevMap[emp.id];
+        if (p) {
+          STATE.entries[emp.id] = {
+            in: p.in, out: p.out,
+            breakH: p.breakH || 0,
+            on: true,
+          };
+        } else {
+          // 그날 데이터 없음 → 휴무
+          STATE.entries[emp.id] = { in: null, out: null, breakH: 0, on: false };
+        }
+      });
+      // 지원 entries 재구성
+      const sup = (STATE.prev_support_by_date || {})[dateStr] || [];
+      STATE.supportEntries = sup.slice();
+      // 시급 변경분 / 삭제 / 신규 직원은 진입 후 상태이므로 그대로 유지 (저장 시 함께 전송)
     }
 
     // (구) 매장 단일 Crew 시급 입력 — 개인별 시급으로 변경되어 제거됨
