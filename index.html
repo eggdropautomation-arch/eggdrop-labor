@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>인건비 입력</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
   <style>
     /* ───────── Telegram 테마 변수 (다크/라이트 자동) ───────── */
     :root {
@@ -630,26 +631,34 @@
 
     // ───────── initData parse ─────────
     function parseInitData() {
-      // 봇이 미니앱 URL에 ?d=URLSAFE_BASE64_JSON (UTF-8 raw) 으로 인코딩
+      // 봇이 미니앱 URL에 ?gz= (gzip+urlsafe_base64) 또는 ?d= (urlsafe_base64) 인코딩
       const params = new URLSearchParams(window.location.search);
-      let d = params.get('d');
-      if (d) {
+      const gz = params.get('gz');
+      const d = params.get('d');
+      const param = gz || d;
+      const isGzip = !!gz;
+      if (param) {
         try {
-          // 1) urlsafe → standard base64 ('-' → '+', '_' → '/')
-          let std = d.replace(/-/g, '+').replace(/_/g, '/');
-          // 2) padding 복원 (urlsafe_b64encode().rstrip('=') 했으므로)
+          let std = param.replace(/-/g, '+').replace(/_/g, '/');
           while (std.length % 4) std += '=';
-          // 3) atob → binary string → UTF-8 bytes → JSON
           const binary = atob(std);
           const bytes = new Uint8Array(binary.length);
           for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-          const jsonText = new TextDecoder('utf-8').decode(bytes);
+          let jsonText;
+          if (isGzip) {
+            if (typeof pako === 'undefined') {
+              throw new Error('pako 라이브러리 로드 실패 (네트워크 확인)');
+            }
+            jsonText = pako.ungzip(bytes, {to: 'string'});
+          } else {
+            jsonText = new TextDecoder('utf-8').decode(bytes);
+          }
           const decoded = JSON.parse(jsonText);
           Object.assign(STATE, decoded);
           return true;
         } catch (e) {
           showError('데이터 파싱 실패: ' + e.message);
-          console.error('parse error:', e, 'raw d=', d?.substring(0, 100));
+          console.error('parse error:', e, 'raw=', param?.substring(0, 100));
           return false;
         }
       }
