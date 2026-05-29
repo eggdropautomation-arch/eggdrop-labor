@@ -1306,9 +1306,9 @@
         const emp = STATE.employees.find(e => e.id === empId) || STATE.newEmployees.find(e => e.id === empId);
         if (emp?.prev) Object.assign(ent, { in: emp.prev.in, out: emp.prev.out, breakH: emp.prev.breakH });
       }
-      refreshRow(empId);
-      // 섹션 카운트 갱신
-      renderMain();  // 단순화 — 토글 변경 시 전체 재렌더
+      // 전체 재렌더(정렬 반영) 후, 토글한 직원이 이동한 위치로 스크롤
+      renderMain();
+      scrollToEl('emp-row-' + empId);
     }
 
     // ───────── 출/퇴근 picker modal ─────────
