@@ -1063,14 +1063,31 @@
 
     // (구) 매장 단일 Crew 시급 입력 — 개인별 시급으로 변경되어 제거됨
 
+    // 정렬: 삭제대기 맨 아래 → 근무중 우선 → 직급(SV·SM·AM·Pro·Crew) → 이름
+    const GRADE_RANK = { SV: 0, SM: 1, AM: 2, Pro: 3, Crew: 4 };
+    function sortEmployees(employees) {
+      return employees.slice().sort((a, b) => {
+        const aDel = STATE.deletedEmployees.includes(a.id) ? 1 : 0;
+        const bDel = STATE.deletedEmployees.includes(b.id) ? 1 : 0;
+        if (aDel !== bDel) return aDel - bDel;
+        const aOn = STATE.entries[a.id]?.on ? 0 : 1;
+        const bOn = STATE.entries[b.id]?.on ? 0 : 1;
+        if (aOn !== bOn) return aOn - bOn;
+        const ar = GRADE_RANK[a.grade] ?? 9, br = GRADE_RANK[b.grade] ?? 9;
+        if (ar !== br) return ar - br;
+        return (a.name || '').localeCompare(b.name || '', 'ko');
+      });
+    }
+
     function renderSection(title, employees) {
+      const sorted = sortEmployees(employees);
       const sec = document.createElement('div');
       sec.className = 'section';
-      const onCount = employees.filter(e => STATE.entries[e.id]?.on).length;
-      sec.innerHTML = `<div class="section-title"><span>${title}</span><span class="section-count">근무 ${onCount} · 휴무 ${employees.length - onCount}</span></div>`;
+      const onCount = sorted.filter(e => STATE.entries[e.id]?.on).length;
+      sec.innerHTML = `<div class="section-title"><span>${title}</span><span class="section-count">근무 ${onCount} · 휴무 ${sorted.length - onCount}</span></div>`;
       const list = document.createElement('div');
       list.className = 'emp-list';
-      employees.forEach(emp => list.appendChild(renderEmpRow(emp)));
+      sorted.forEach(emp => list.appendChild(renderEmpRow(emp)));
       sec.appendChild(list);
       return sec;
     }
