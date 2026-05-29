@@ -178,6 +178,22 @@
     }
     .add-btn:active { background: rgba(0,0,0,0.05); }
 
+    /* 직원 추가 영역 — 지원 섹션과 명확히 구분 (상단 구분선 + 라벨) */
+    .add-employee-section {
+      margin-top: 20px;
+      border-top: 6px solid var(--secondary-bg);
+      padding-top: 12px;
+    }
+    .add-employee-label {
+      font-size: 13px; font-weight: 600; color: var(--section-header);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      padding: 0 20px 4px;
+    }
+    .add-employee-btn {
+      border-style: solid; border-color: var(--accent);
+      color: var(--accent); font-weight: 600;
+    }
+
     /* ───────── Footer (sticky) ───────── */
     footer {
       position: fixed; bottom: 0; left: 0; right: 0;
@@ -780,19 +796,25 @@
       // 🔄 지원 섹션
       main.appendChild(renderSupportSection());
 
-      // 직원 추가 버튼
+      // 직원 추가 — 지원 섹션과 명확히 구분 (별도 섹션 + 구분선 + 안내)
+      const addSec = document.createElement('div');
+      addSec.className = 'add-employee-section';
+      addSec.id = 'add-employee-area';
+      addSec.innerHTML = `<div class="add-employee-label">우리 매장 직원 관리</div>`;
       const addBtn = document.createElement('div');
-      addBtn.className = 'add-btn';
-      addBtn.textContent = '+ 직원 추가';
+      addBtn.className = 'add-btn add-employee-btn';
+      addBtn.textContent = '👤 새 직원 추가';
       addBtn.onclick = openAddModal;
-      main.appendChild(addBtn);
+      addSec.appendChild(addBtn);
+      main.appendChild(addSec);
     }
 
     function renderSupportSection() {
       const sec = document.createElement('div');
       sec.className = 'section';
+      sec.id = 'support-section';
       sec.innerHTML = `<div class="section-title">
-        <span>🔄 지원 (타매장 ↔ 우리 매장)</span>
+        <span>🔄 지원 근무 (타매장 ↔ 우리 매장)</span>
         <span class="section-count">${STATE.supportEntries.length}건</span>
       </div>`;
       const list = document.createElement('div');
@@ -817,7 +839,7 @@
       const addBtn = document.createElement('div');
       addBtn.className = 'add-btn';
       addBtn.style.margin = '8px 0 0';
-      addBtn.textContent = '+ 지원 추가';
+      addBtn.textContent = '+ 지원 근무 추가';
       addBtn.onclick = () => openSupportModal();
       sec.appendChild(list);
       sec.appendChild(addBtn);
@@ -981,6 +1003,19 @@
       closeSupportModal();
       renderMain();
       updateSummary();
+      scrollToEl('support-section');  // 추가된 지원 영역으로 자동 스크롤
+    }
+
+    // 고정 헤더(약 72px) 아래로 부드럽게 스크롤
+    function scrollToEl(idOrEl) {
+      const el = typeof idOrEl === 'string' ? document.getElementById(idOrEl) : idOrEl;
+      if (!el) return;
+      setTimeout(() => {
+        const hdr = document.querySelector('header');
+        const offset = (hdr ? hdr.offsetHeight : 64) + 12;
+        const y = el.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }, 80);
     }
 
     function removeSupport(idx) {
@@ -1458,6 +1493,7 @@
       STATE.entries[tempId] = { in: '09:00', out: '18:00', breakH: 1.0, on: true };
 
       closeAddModal();
+      scrollToEl('emp-row-' + tempId);  // 추가된 직원 행으로 자동 스크롤
     }
 
     // ───────── 저장 ─────────
