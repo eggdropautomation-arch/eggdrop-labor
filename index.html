@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>인건비 입력</title>
+  <title>스케줄 입력</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
   <style>
@@ -744,7 +744,7 @@
       document.getElementById('hdr-store').textContent =
         `📅 ${STATE.store} · ${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
       const subEl = document.getElementById('hdr-sub');
-      subEl.innerHTML = (STATE.manager ? `${STATE.manager} 매니저` : '인건비 입력')
+      subEl.innerHTML = (STATE.manager ? `${STATE.manager} 매니저` : '스케줄 입력')
         + ` · <span class="header-date" onclick="openDateModal()">📅 ${STATE.date} 변경</span>`;
     }
 
