@@ -1517,7 +1517,13 @@
 
       if (tg) {
         tg.sendData(JSON.stringify(payload));
-        // sendData 호출 후 텔레그램이 미니앱 자동 close
+        // sendData 호출 시 텔레그램이 미니앱을 자동 close하지만,
+        // 일부 클라이언트에서 닫히지 않는 경우 대비해 명시적으로 닫음.
+        try {
+          if (typeof tg.close === 'function') {
+            setTimeout(() => { try { tg.close(); } catch (e) {} }, 150);
+          }
+        } catch (e) {}
       } else {
         alert('저장 데이터:\n' + JSON.stringify(payload, null, 2));
       }
